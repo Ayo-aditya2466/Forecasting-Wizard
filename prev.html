@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Forecasting Wizard — Enterprise Shell</title>
+
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-yH6fQy1k2xv2i6V+8zv+0k1s6bT1qg9y5q4a0eR2zq3F8n6a1f7xM2u3p9X0y8b2c3a4d5e6f7g8h9i0j1k2l==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Chart.js (required for Phase 3) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Tailwind CDN (no build step) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandTeal: '#0f766e'
+          },
+          boxShadow: {
+            'soft-lg': '0 10px 30px rgba(2,6,23,0.08)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+  </style>
+</head>
+<body class="antialiased" style="background-image: linear-gradient(180deg,#f8fafc 0%, #f1f5f9 100%);">
+
+  <main class="min-h-screen flex flex-col items-center py-16 px-6 space-y-10">
+
+    <!-- Top Brand / Intro -->
+    <header class="w-full max-w-5xl text-center">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800">Forecasting Wizard</h1>
+      <p class="mt-2 text-sm md:text-base text-slate-500">Intelligent Demand &amp; Market Forecasting Engine</p>
+    </header>
+
+    <!-- Forecast Configuration Card -->
+    <section class="w-full max-w-5xl">
+      <div class="bg-white rounded-2xl shadow-soft-lg border border-transparent p-8">
+        <div class="flex flex-col gap-6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-slate-800">Forecast Configuration</h2>
+            <span class="text-sm text-slate-500">Enterprise • Input</span>
+          </div>
+
+          <p class="text-sm text-slate-500">Configure your analysis variables and run a predictive pass. Use clear, explicit inputs for best results.</p>
+
+          <!-- Input row with button aligned -->
+          <form class="w-full" onsubmit="return false;">
+            <div class="flex gap-3">
+              <input id="forecastPrompt" aria-label="Forecast variables" type="text" placeholder="Enter predictive variables (e.g., Q3 retail demand, 5% inflation factor)..." class="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brandTeal" />
+              <button id="runAnalysisBtn" type="button" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brandTeal hover:bg-teal-700 text-white font-medium shadow">
+                <i class="fa-solid fa-play"></i>
+                <span>Run Analysis</span>
+              </button>
+            </div>
+
+            <p class="mt-3 text-sm text-slate-500">Guidelines: Provide explicit data variables, time ranges, and baseline conditions for higher model accuracy.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chart / Dashboard Section -->
+    <section class="w-full max-w-6xl">
+      <div class="bg-white rounded-2xl shadow-soft-lg border border-slate-200 p-8">
+        <h3 class="text-lg font-medium text-slate-800">Dashboard</h3>
+        <p class="mt-2 text-sm text-slate-500">Overview of forecast outputs and visualizations.</p>
+
+        <!-- Added: summary element to show forecast summary when viewing from history -->
+        <p id="forecastSummary" class="mt-3 text-sm text-slate-600 font-medium"></p>
+
+        <!-- Canvas placeholder (replaces dashed placeholder) -->
+        <div class="mt-6 rounded-lg p-6 h-[min(48vh,520px)] flex items-stretch">
+          <div class="relative w-full" style="height: 350px;">
+            <canvas id="forecastChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-5xl text-center text-sm text-slate-500">
+      UI only — no backend or heavy JS included. Designed as a spacious, corporate layout.
+    </footer>
+
+  </main>
+
+  <!-- Script: connect the Run Analysis button to the local API and render Chart.js -->
+  <script>
+    // Global chart instance
+    let myChart = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('forecastPrompt');
+      const button = document.getElementById('runAnalysisBtn');
+
+      if (!input || !button) {
+        console.warn('Forecast script: Missing required elements (#forecastPrompt or #runAnalysisBtn)');
+        return;
+      }
+
+      // --- NEW: apply pending forecast from History if present ---
+      try {
+        const pending = localStorage.getItem('viewForecast');
+        if (pending) {
+          const pdata = JSON.parse(pending);
+          // clear immediately to avoid repeat
+          localStorage.removeItem('viewForecast');
+
+          // populate input
+          if (pdata.prompt && typeof pdata.prompt === 'string') {
+            input.value = pdata.prompt;
+          }
+
+          // populate summary
+          const summaryEl = document.getElementById('forecastSummary');
+          if (summaryEl) summaryEl.textContent = pdata.summary || '';
+
+          // render chart if data exists
+          if (pdata.labels && pdata.values && Array.isArray(pdata.labels) && Array.isArray(pdata.values)) {
+            try { if (myChart) myChart.destroy(); } catch(e) { /* ignore */ }
+            const ctx = document.getElementById('forecastChart').getContext('2d');
+            myChart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: pdata.labels,
+                datasets: [{
+                  label: pdata.summary || 'Market Projection',
+                  data: pdata.values,
+                  borderColor: '#0d9488',
+                  backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                  borderWidth: 3,
+                  tension: 0.4,
+                  fill: true
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true, position: 'top' } },
+                scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Error applying pending forecast from localStorage:', err);
+        try { localStorage.removeItem('viewForecast'); } catch (e) {}
+      }
+
+      // Preserve original button HTML
+      const originalButtonHTML = button.innerHTML;
+
+      button.addEventListener('click', function (e) {
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+
+        const promptValue = (input.value || '').toString();
+        console.log('Button clicked! Prompt value entered:', promptValue);
+
+        // Set loading state
+        button.disabled = true;
+        button.innerText = 'Analyzing...';
+
+        // Use explicit fetch chain per spec
+        fetch('http://localhost:3000/api/forecast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: promptValue })
+        })
+        .then(response => {
+          console.log('Server responded with HTTP status:', response.status);
+          if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('🚀 SUCCESS! Forecast Data Received:', data);
+
+          // Destroy old chart instance if it exists
+          if (myChart) {
+            try { myChart.destroy(); } catch (err) { console.warn('Error destroying previous chart:', err); }
+            myChart = null;
+          }
+
+          // Update summary element
+          const summaryEl = document.getElementById('forecastSummary');
+          if (summaryEl) summaryEl.textContent = data.summary || '';
+
+          // Render the new chart using data.labels and data.values
+          const ctx = document.getElementById('forecastChart').getContext('2d');
+          myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: data.labels,
+              datasets: [{
+                label: data.summary || 'Market Projection',
+                data: data.values,
+                borderColor: '#0d9488',
+                backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: true, position: 'top' }
+              },
+              scales: {
+                y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false } }
+              }
+            }
+          });
+        })
+        .catch(err => {
+          console.error('Error fetching forecast:', err);
+          alert('Error connecting to the forecasting engine.');
+        })
+        .finally(() => {
+          // Restore button state
+          button.disabled = false;
+          button.innerHTML = originalButtonHTML;
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

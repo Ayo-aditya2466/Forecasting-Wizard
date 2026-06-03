@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Forecasting Wizard — Executive Insights</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { theme: { extend: { colors: { brandTeal: '#0f766e' }, boxShadow: { 'soft-lg': '0 10px 30px rgba(2,6,23,0.08)' } } } }</script>
+  <style>body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;}</style>
+</head>
+<body class="flex flex-row min-h-screen bg-slate-950 text-slate-100">
+  <aside class="w-64 bg-slate-900 text-white p-6 flex flex-col gap-6">
+    <div>
+      <a href="index.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-md bg-white text-slate-900 font-medium">
+        <span class="text-lg">＋</span>
+        <span>New Chat</span>
+      </a>
+    </div>
+
+    <nav class="flex-1 flex flex-col gap-2 mt-6">
+      <a href="index.html" id="sidebarHome" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-white">
+        <i class="fa-solid fa-house text-white"></i>
+        <span class="text-sm">Home</span>
+      </a>
+      <a href="dashboard.html" id="sidebarDashboard" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-white">
+        <i class="fa-solid fa-chart-area text-white"></i>
+        <span class="text-sm">Dashboard</span>
+      </a>
+      <a href="history.html" id="sidebarHistory" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-white">
+        <i class="fa-solid fa-clock-rotate-left text-white"></i>
+        <span class="text-sm">History</span>
+      </a>
+      <a href="insights.html" id="sidebarInsights" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-white">
+        <i class="fa-solid fa-lightbulb text-white"></i>
+        <span class="text-sm">Executive Insights</span>
+      </a>
+    </nav>
+    <div class="text-xs text-slate-400 mt-auto">Forecasting Wizard</div>
+  </aside>
+
+  <div class="flex-1 h-screen overflow-y-auto py-12 px-8 bg-slate-950">
+    <header class="w-full max-w-5xl text-center">
+      <div class="w-full max-w-6xl mx-auto text-left mb-4">
+        <a href="dashboard.html" class="text-sm text-slate-300 hover:underline">← Back to Dashboard</a>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-extrabold text-slate-100">Executive Insights</h1>
+      <p class="mt-2 text-sm md:text-base text-slate-400">AI-driven executive intelligence for strategic decision-making.</p>
+    </header>
+
+    <main class="w-full max-w-6xl mx-auto space-y-6 mt-6">
+      <section class="bg-slate-800 rounded-2xl shadow-soft-lg border border-slate-700 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-100">AI Executive Insights & Recommendations</h2>
+            <p class="mt-1 text-sm text-slate-400">Automated tactical guidance based on the latest forecast simulation.</p>
+          </div>
+        </div>
+        <div id="executiveStrategyContent" class="min-h-[180px] rounded-2xl border border-slate-700 bg-slate-800 p-6 text-slate-200 text-base leading-relaxed">
+          No active simulation data found. Execute a fresh forecast simulation from the Home workspace to compile automated tactical recommendations.
+        </div>
+      </section>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section class="bg-slate-800 rounded-2xl shadow-soft-lg border border-slate-700 p-6">
+          <h3 class="text-lg font-semibold text-slate-100">Risk Priority</h3>
+          <p id="riskPriorityBadge" class="mt-3 text-slate-200 text-base">No active risk status available.</p>
+        </section>
+
+        <section class="bg-slate-800 rounded-2xl shadow-soft-lg border border-slate-700 p-6">
+          <h3 class="text-lg font-semibold text-slate-100">Suggested Action</h3>
+          <p id="suggestedActionBadge" class="mt-3 text-slate-200 text-base">No suggested action yet. Run a forecast to surface recommendations.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="/insights-engine.js" defer></script>
+  <script src="/app.js" defer></script>
+  </body>
+</html>

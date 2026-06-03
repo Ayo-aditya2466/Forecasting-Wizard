@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Forecasting Wizard — History</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brandTeal: '#0f766e' }, boxShadow: { 'soft-lg': '0 10px 30px rgba(2,6,23,0.08)' } } } }
+  </script>
+  <style>body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial; background-color:#071014; color:#e6eef6;}</style>
+</head>
+<body class="antialiased">
+
+  <main class="min-h-screen flex flex-col items-center py-12 px-6 space-y-8">
+
+    <header class="w-full max-w-6xl flex items-center justify-between">
+      <div>
+        <a href="dashboard.html" class="text-sm text-slate-300 hover:underline">← Back to Dashboard</a>
+        <h1 class="mt-3 text-3xl font-extrabold text-white">Forecast History</h1>
+        <p class="mt-1 text-sm text-slate-400">Browse previously generated forecasts. Click "View" to inspect each forecast.</p>
+      </div>
+    </header>
+
+    <section class="w-full max-w-6xl bg-panel rounded-2xl shadow-soft-lg border border-slate-800 p-6">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="text-sm text-slate-400 border-b border-slate-800">
+              <th class="py-3 px-3">Date</th>
+              <th class="py-3 px-3">Prompt</th>
+              <th class="py-3 px-3">Summary</th>
+              <th class="py-3 px-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body" class="divide-y divide-slate-800">
+            <tr><td colspan="4" class="py-6 text-center text-slate-400">Loading history…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="w-full max-w-6xl text-center text-sm text-slate-500">Saved forecasts persisted to MongoDB.</footer>
+
+  </main>
+
+    <nav class="flex-1 flex flex-col gap-2 mt-6">
+      <a href="index.html" id="sidebarHome" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-white">
+        <i class="fa-solid fa-house text-white"></i>
+        <span class="text-sm">Home</span>
+      </a>
+      <a href="dashboard.html" id="sidebarDashboard" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-white">
+        <i class="fa-solid fa-house text-white"></i>
+        <span class="text-sm">Dashboard</span>
+      </a>
+      <a href="history.html" id="sidebarHistory" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 text-white">
+        <i class="fa-solid fa-clock-rotate-left text-white"></i>
+        <span class="text-sm">History</span>
+      </a>
+    </nav>
+
+  <script src="/history-engine.js" defer></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>
